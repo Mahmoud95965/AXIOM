@@ -4,6 +4,7 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { normalizePlan } from '@/lib/types';
 import { uploadImageToAzureStorage } from '@/lib/azureStorage';
 
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
