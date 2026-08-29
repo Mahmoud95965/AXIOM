@@ -1,0 +1,43 @@
+{
+  "name": "AXIOM - TOLZY AI",
+  "short_name": "AXIOM",
+  "description": "المساعد الذكي فائق التطور AXIOM المدعوم من TOLZY AI",
+  "start_url": "./index.html?mode=app",
+  "display": "standalone",
+  "background_color": "#131314",
+  "theme_color": "#131314",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "artificial-intelligence"],
+  "shortcuts": [
+    {
+      "name": "محادثة جديدة",
+      "short_name": "شات جديد",
+      "description": "بدء محادثة ذكية جديدة مع AXIOM",
+      "url": "./index.html?mode=app&action=newchat",
+      "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "وضع الصوت المباشر",
+      "short_name": "صوت مباشر",
+      "description": "التحدث صوتياً مع AXIOM Live",
+      "url": "./index.html?mode=app&action=live",
+      "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

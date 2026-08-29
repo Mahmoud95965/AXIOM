@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad512" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#181a24" />
+      <stop offset="50%" stop-color="#0e1017" />
+      <stop offset="100%" stop-color="#06070a" />
+    </radialGradient>
+
+    <!-- Core Neon Glow Gradient -->
+    <linearGradient id="neonGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="35%" stop-color="#3b82f6" />
+      <stop offset="70%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+
+    <!-- Inner Prism Crystal Gradient -->
+    <linearGradient id="crystalGrad512" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="30%" stop-color="#c4b5fd" />
+      <stop offset="70%" stop-color="#67e8f9" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <!-- Glass Reflection Gradient -->
+    <linearGradient id="glassReflect512" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+    </linearGradient>
+
+    <!-- Multi-Layer Glow Filters -->
+    <filter id="superGlow512" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" result="blur1" />
+      <feGaussianBlur stdDeviation="40" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="intenseGlow512" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#bgGrad512)" />
+  <rect width="508" height="508" x="2" y="2" rx="114" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" />
+  
+  <!-- Subtle Top Glass Sheen -->
+  <path d="M 2 116 Q 2 2 116 2 L 396 2 Q 510 2 510 116 L 510 210 Q 256 290 2 210 Z" fill="url(#glassReflect512)" />
+
+  <!-- Ambient Glow Behind Monogram -->
+  <circle cx="256" cy="260" r="130" fill="url(#neonGrad512)" opacity="0.28" filter="url(#superGlow512)" />
+
+  <!-- The AXIOM Cyber-Prism 'A' Monogram -->
+  <g filter="url(#superGlow512)">
+    <!-- Outer Quantum Prism Legs -->
+    <path d="M 256 75 
+             L 410 395 
+             L 336 395 
+             L 288 293 
+             L 224 293 
+             L 176 395 
+             L 102 395 
+             Z" 
+          fill="url(#neonGrad512)" />
+
+    <!-- Inner Hollow Triangle (Aperture) -->
+    <polygon points="256,150 202,253 310,253" fill="#0c0e14" />
+  </g>
+
+  <!-- Sharp Core Crystal Overlay with Filter -->
+  <g filter="url(#intenseGlow512)">
+    <!-- Left Neon Edge -->
+    <path d="M 256 75 L 102 395 L 138 395 L 256 138 Z" fill="#00f0ff" opacity="0.95" />
+
+    <!-- Right Neon Edge -->
+    <path d="M 256 75 L 410 395 L 374 395 L 256 138 Z" fill="#ec4899" opacity="0.9" />
+
+    <!-- Center Crossbar Horizon Bridge -->
+    <path d="M 192 267 L 320 267 L 306 293 L 206 293 Z" fill="url(#crystalGrad512)" />
+
+    <!-- Apex Quantum Sparkle Core -->
+    <circle cx="256" cy="106" r="14" fill="#ffffff" />
+    <path d="M 256 64 L 261 106 L 298 106 L 264 112 L 277 149 L 256 117 L 235 149 L 248 112 L 214 106 L 251 106 Z" fill="#ffffff" opacity="0.95" />
+  </g>
+
+  <!-- Glowing Central Node -->
+  <circle cx="256" cy="213" r="9" fill="#00f0ff" filter="url(#intenseGlow512)" />
+</svg>

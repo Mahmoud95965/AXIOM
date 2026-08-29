@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #0a0a0c;
+  --bg-surface: #141417;
+  --bg-input: #18181b;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-main: #f4f4f6;
+  --text-muted: #90909a;
+}
+
+html.light {
+  --bg-main: #f8f9fa;
+  --bg-surface: #ffffff;
+  --bg-input: #f1f3f5;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --text-main: #18181b;
+  --text-muted: #6b7280;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  direction: rtl;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* BiDi text support for Arabic with English mixed phrases */
+.bidi-arabic {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: isolate;
+}
+
+.bidi-arabic span, 
+.bidi-arabic p, 
+.bidi-arabic strong, 
+.bidi-arabic em {
+  unicode-bidi: isolate;
+}
+
+/* Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.35);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: blinkCursor 0.7s infinite;
+}
