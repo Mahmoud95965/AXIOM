@@ -635,18 +635,21 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
   };
 
   // PWA Install Action
-  const handleInstallApp = () => {
+  const handleInstallApp = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choice: any) => {
-        if (choice.outcome === 'accepted') {
+      try {
+        await deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
           setIsInstallModalOpen(false);
         }
-        setDeferredPrompt(null);
-      });
+      } catch (err) {
+        console.warn('PWA prompt execution:', err);
+      }
+      setDeferredPrompt(null);
     } else {
-      alert('يمكنك إضافة وتثبيت AXIOM V2 للشاشة الرئيسية أو سطح المكتب كـ PWA عبر خيارات المتصفح (⋮ / تثبيت التطبيق)');
-      setIsInstallModalOpen(false);
+      // Open modal with platform specific manual instructions
+      setIsInstallModalOpen(true);
     }
   };
 
