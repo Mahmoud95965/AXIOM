@@ -24,6 +24,7 @@ interface ChatThreadProps {
   onRegenerate: () => void;
   onSpeak: (text: string) => void;
   speakingMsgId: string | null;
+  onOpenInstall?: () => void;
 }
 
 export const ChatThread: React.FC<ChatThreadProps> = ({
@@ -31,7 +32,8 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
   isGenerating,
   onRegenerate,
   onSpeak,
-  speakingMsgId
+  speakingMsgId,
+  onOpenInstall
 }) => {
   const { theme } = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -180,6 +182,20 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
         <p className={`text-xs sm:text-sm max-w-md leading-relaxed px-2 bidi-arabic ${theme === 'light' ? 'text-zinc-500' : 'text-zinc-400'}`}>
           المساعد الذكي لمنظومة TOLZY. اسأل عن أي كود، استفسار علمي، أو اطلب تخليق وصناعة الصور بنموذج FLUX.2 Pro.
         </p>
+
+        {onOpenInstall && (
+          <button
+            onClick={onOpenInstall}
+            className={`mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold transition-all ${
+              theme === 'light'
+                ? 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600 shadow-xs'
+                : 'bg-blue-950/40 hover:bg-blue-900/60 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+            }`}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>تثبيت التطبيق على هاتفك أو جهازك (PWA)</span>
+          </button>
+        )}
       </div>
     );
   }

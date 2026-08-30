@@ -694,6 +694,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onOpenPlans={() => setIsPlansModalOpen(true)}
           onOpenIntegrations={() => router.push('/integrations')}
+          onOpenInstall={handleInstallApp}
         />
 
         {/* Chat Thread with Two-Sided Arabic Layout */}
@@ -704,6 +705,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
             onRegenerate={handleRegenerate}
             onSpeak={handleSpeak}
             speakingMsgId={speakingMsgId}
+            onOpenInstall={handleInstallApp}
           />
         </div>
 

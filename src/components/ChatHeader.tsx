@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, PanelRightOpen, Coins, User, LogOut, ExternalLink, Settings, Sun, Moon, Link2 } from 'lucide-react';
+import { Menu, PanelRightOpen, Coins, User, LogOut, ExternalLink, Settings, Sun, Moon, Link2, Download, Smartphone } from 'lucide-react';
 import { PLAN_CONFIGS, TOLZY_PRICING_URL } from '../lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -14,6 +14,7 @@ interface ChatHeaderProps {
   onOpenAuth: () => void;
   onOpenPlans: () => void;
   onOpenIntegrations: () => void;
+  onOpenInstall?: () => void;
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -22,7 +23,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   onOpenSettings,
   onOpenAuth,
   onOpenPlans,
-  onOpenIntegrations
+  onOpenIntegrations,
+  onOpenInstall
 }) => {
   const { user, userProfile, logout, remainingTokens } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -68,9 +70,25 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Theme Toggle, Tokens & Profile */}
-      <div className="flex items-center gap-2">
+      {/* Right: Install App, Theme Toggle, Tokens & Profile */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         
+        {/* Fast Install App Button */}
+        {onOpenInstall && (
+          <button
+            onClick={onOpenInstall}
+            className={`flex items-center gap-1.5 py-1 px-2 sm:px-2.5 rounded-lg border text-xs font-medium transition-all ${
+              theme === 'light'
+                ? 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600 shadow-2xs'
+                : 'bg-blue-950/40 hover:bg-blue-900/60 border-blue-500/30 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]'
+            }`}
+            title="تثبيت وتنزيل تطبيق AXIOM V2"
+          >
+            <Download className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="hidden xs:inline font-semibold">تنزيل التطبيق</span>
+          </button>
+        )}
+
         {/* Theme Toggle Button (Light/Dark Mode) */}
         <button
           onClick={toggleTheme}
@@ -140,6 +158,21 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 <p className="font-semibold truncate">{user.displayName || 'مستخدم TOLZY'}</p>
                 <p className="text-[11px] text-zinc-400 truncate">{user.email}</p>
               </div>
+
+              {onOpenInstall && (
+                <button
+                  onClick={() => {
+                    setUserDropdownOpen(false);
+                    onOpenInstall();
+                  }}
+                  className={`w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between transition-colors ${
+                    theme === 'light' ? 'hover:bg-zinc-100 text-blue-600 font-medium' : 'hover:bg-white/5 text-blue-400 font-medium'
+                  }`}
+                >
+                  <span>تثبيت التطبيق (PWA)</span>
+                  <Download className="w-3.5 h-3.5" />
+                </button>
+              )}
 
               <Link
                 href="/integrations"

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Plus, MessageSquare, Settings, Trash2, PanelRightClose, Coins, LogIn, ExternalLink, Link2, Sun, Moon } from 'lucide-react';
+import { Plus, MessageSquare, Settings, Trash2, PanelRightClose, Coins, LogIn, ExternalLink, Link2, Sun, Moon, Download } from 'lucide-react';
 import { ChatSession, PLAN_CONFIGS, TOLZY_PRICING_URL } from '../lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -32,6 +32,7 @@ export const SidebarDrawer: React.FC<SidebarProps> = ({
   onNewChat,
   onDeleteChat,
   onClearAll,
+  onOpenInstall,
   onOpenSettings,
   onOpenAuth,
   onOpenPlans,
@@ -183,6 +184,17 @@ export const SidebarDrawer: React.FC<SidebarProps> = ({
             theme === 'light' ? 'border-zinc-200' : 'border-white/[0.06]'
           }`}>
             
+            {/* Direct PWA Install Button */}
+            <button
+              onClick={onOpenInstall}
+              className={`w-full flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                theme === 'light' ? 'text-blue-600 hover:bg-blue-50 font-medium' : 'text-blue-400 hover:bg-blue-950/30 font-medium'
+              }`}
+            >
+              <Download className="w-3.5 h-3.5 text-blue-500" />
+              <span>تثبيت التطبيق (PWA)</span>
+            </button>
+
             {/* Dedicated Integrations Trigger */}
             <Link
               href="/integrations"
