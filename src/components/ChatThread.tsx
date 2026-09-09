@@ -6,6 +6,8 @@ import {
   Copy, 
   Check, 
   Volume2, 
+  VolumeX,
+  Loader2,
   ThumbsUp, 
   RotateCcw, 
   Globe, 
@@ -22,8 +24,8 @@ interface ChatThreadProps {
   messages: ChatMessage[];
   isGenerating: boolean;
   onRegenerate: () => void;
-  onSpeak: (text: string) => void;
-  speakingMsgId: string | null;
+  onSpeak?: (text: string) => void;
+  speakingMsgId?: string | null;
   onOpenInstall?: () => void;
 }
 
@@ -41,6 +43,12 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
   const [likedIds, setLikedIds] = useState<Record<string, boolean>>({});
   const [focusedImage, setFocusedImage] = useState<{ url: string; alt: string } | null>(null);
 
+  // Azure AI Foundry TTS (MAI-Voice-2) States & Cache
+  const [activeTtsId, setActiveTtsId] = useState<string | null>(null);
+  const [isTtsLoading, setIsTtsLoading] = useState<boolean>(false);
+  const audioCacheRef = useRef<Map<string, string>>(new Map());
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isGenerating]);
@@ -56,6 +64,22 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [focusedImage]);
 
+  // Clean up audio & object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+      audioCacheRef.current.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {}
+      });
+      audioCacheRef.current.clear();
+    };
+  }, []);
+
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -64,6 +88,98 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
 
   const handleLike = (id: string) => {
     setLikedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Play audio helper
+  const playAudio = (messageId: string, url: string) => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    const audio = new Audio(url);
+    currentAudioRef.current = audio;
+    setActiveTtsId(messageId);
+
+    audio.onended = () => {
+      setActiveTtsId(null);
+      currentAudioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      console.warn('Audio playback error');
+      setActiveTtsId(null);
+      currentAudioRef.current = null;
+    };
+
+    audio.play().catch((err) => {
+      console.warn('Playback failed:', err);
+      setActiveTtsId(null);
+      currentAudioRef.current = null;
+    });
+  };
+
+  // Azure AI Foundry TTS Trigger
+  const handleToggleTts = async (messageId: string, text: string) => {
+    // If this message is currently playing, stop it
+    if (activeTtsId === messageId) {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+      setActiveTtsId(null);
+      setIsTtsLoading(false);
+      return;
+    }
+
+    // Stop any existing playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+      setActiveTtsId(null);
+    }
+
+    // Check in-memory Object URL cache
+    if (audioCacheRef.current.has(messageId)) {
+      const cachedUrl = audioCacheRef.current.get(messageId)!;
+      playAudio(messageId, cachedUrl);
+      return;
+    }
+
+    // Fetch from /api/tts endpoint
+    try {
+      setActiveTtsId(messageId);
+      setIsTtsLoading(true);
+
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل توليد الصوت من Azure TTS');
+      }
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      audioCacheRef.current.set(messageId, audioUrl);
+
+      setIsTtsLoading(false);
+      playAudio(messageId, audioUrl);
+
+    } catch (error) {
+      console.warn('Azure TTS error, falling back:', error);
+      setIsTtsLoading(false);
+      setActiveTtsId(null);
+
+      // Graceful fallback to client speech synthesis if available
+      if (onSpeak) {
+        onSpeak(text);
+      }
+    }
   };
 
   // Markdown parser with BiDi preservation for mixed Arabic & English words
@@ -84,7 +200,6 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
           <div class="relative overflow-hidden cursor-pointer" onclick="window.dispatchEvent(new CustomEvent('axiom_focus_image', { detail: { url: '${encodedUrl}', alt: '${encodedAlt}' } }))">
             <img src="${url}" alt="${cleanAlt}" class="w-full max-h-[480px] object-contain rounded-t-2xl transition-transform duration-300 group-hover:scale-[1.01]" loading="lazy" />
             
-            {/* Sleek Floating Action Bar on Image */}
             <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md p-1 rounded-xl border border-white/10" onclick="event.stopPropagation()">
               <a href="${url}" download="flux_image.png" class="p-1.5 rounded-lg text-white hover:bg-white/20 transition-colors" title="تحميل الصورة">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -204,7 +319,7 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
   return (
     <div className="flex-1 overflow-y-auto px-2.5 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto relative">
       
-      {/* Lightbox / Focused Image Viewer (Blurs chat background while keeping input visible) */}
+      {/* Lightbox / Focused Image Viewer */}
       {focusedImage && (
         <div 
           className="fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 animate-fade-in"
@@ -255,8 +370,9 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
 
       {messages.map((msg, index) => {
         const isUser = msg.sender === 'user';
-        const isSpeaking = speakingMsgId === msg.id;
         const isLastAi = !isUser && index === messages.length - 1;
+        const isPlayingThis = activeTtsId === msg.id && !isTtsLoading;
+        const isLoadingThis = activeTtsId === msg.id && isTtsLoading;
 
         // =====================================================================
         // User Question (Right Side / ناحية اليمين)
@@ -371,14 +487,26 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
                       {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
 
+                    {/* Azure AI Speech TTS Button (MAI-Voice-2) */}
                     <button
-                      onClick={() => onSpeak(msg.text)}
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        isSpeaking ? 'text-blue-500' : theme === 'light' ? 'hover:text-zinc-900 hover:bg-zinc-100' : 'hover:text-white hover:bg-white/5'
+                      onClick={() => handleToggleTts(msg.id, msg.text)}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        isPlayingThis
+                          ? 'text-blue-500 bg-blue-500/10 ring-1 ring-blue-500/30'
+                          : isLoadingThis
+                          ? 'text-blue-400 bg-blue-500/5'
+                          : theme === 'light' ? 'hover:text-zinc-900 hover:bg-zinc-100' : 'hover:text-white hover:bg-white/5'
                       }`}
-                      title="استماع صوتي"
+                      title={isPlayingThis ? 'إيقاف الاستماع الصوتي' : isLoadingThis ? 'جاري توليد الصوت عبر Azure AI Speech...' : 'استماع صوتي فائق الدقة (Azure AI)'}
+                      disabled={isLoadingThis}
                     >
-                      <Volume2 className="w-3.5 h-3.5" />
+                      {isLoadingThis ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                      ) : isPlayingThis ? (
+                        <VolumeX className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                      ) : (
+                        <Volume2 className="w-3.5 h-3.5" />
+                      )}
                     </button>
 
                     <button
