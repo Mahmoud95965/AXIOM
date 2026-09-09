@@ -253,7 +253,11 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
     if (isGenerating) return;
 
     if (!hasTokensLeft) {
-      setIsPlansModalOpen(true);
+      if (!user) {
+        setIsAuthModalOpen(true);
+      } else {
+        setIsPlansModalOpen(true);
+      }
       return;
     }
 

@@ -46,6 +46,8 @@ interface AuthContextType {
 
 const getTodayString = () => new Date().toISOString().split('T')[0];
 
+export const GUEST_TOKEN_LIMIT = 5000;
+
 const DEFAULT_GUEST_PROFILE: UserProfile = {
   uid: 'guest_user',
   email: null,
@@ -53,9 +55,9 @@ const DEFAULT_GUEST_PROFILE: UserProfile = {
   photoURL: null,
   plan: 'free',
   tokensUsed: 0,
-  tokensLimit: PLAN_CONFIGS.free.tokenLimit,
+  tokensLimit: GUEST_TOKEN_LIMIT,
   dailyTokensUsed: 0,
-  dailyTokensLimit: PLAN_CONFIGS.free.dailyTokenLimit,
+  dailyTokensLimit: GUEST_TOKEN_LIMIT,
   lastActiveDate: getTodayString(),
   createdAt: new Date().toISOString()
 };

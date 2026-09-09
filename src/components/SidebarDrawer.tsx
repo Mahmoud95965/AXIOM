@@ -149,35 +149,56 @@ export const SidebarDrawer: React.FC<SidebarProps> = ({
             })}
           </div>
 
-          {/* User Plan & Token Quota Card */}
-          <div className={`mx-3 mb-2 p-2.5 rounded-xl border space-y-1.5 ${
-            theme === 'light' ? 'bg-white border-zinc-200' : 'bg-[#141417] border-white/[0.06]'
-          }`}>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1">
-                <Coins className="w-3 h-3 text-zinc-400" />
-                <span className="font-medium">{currentPlan.name}</span>
+          {/* User Plan & Token Quota Card (Logged-in vs Guest) */}
+          {user ? (
+            <div className={`mx-3 mb-2 p-2.5 rounded-xl border space-y-1.5 ${
+              theme === 'light' ? 'bg-white border-zinc-200' : 'bg-[#141417] border-white/[0.06]'
+            }`}>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1">
+                  <Coins className="w-3 h-3 text-zinc-400" />
+                  <span className="font-medium">{currentPlan.name}</span>
+                </div>
+                <button
+                  onClick={onOpenPlans}
+                  className="text-[10px] text-blue-500 hover:underline font-medium"
+                >
+                  الخطط
+                </button>
               </div>
+
+              <div className={`w-full h-1 rounded-full overflow-hidden ${theme === 'light' ? 'bg-zinc-200' : 'bg-white/5'}`}>
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all"
+                  style={{ width: `${usagePercent}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                <span>المتبقي: {remainingTokens.toLocaleString('ar-EG')}</span>
+                <span>{usagePercent}%</span>
+              </div>
+            </div>
+          ) : (
+            <div className={`mx-3 mb-2 p-3 rounded-xl border text-xs text-right space-y-1.5 ${
+              theme === 'light' 
+                ? 'bg-blue-50/70 border-blue-200/80 text-zinc-800' 
+                : 'bg-blue-950/20 border-blue-500/20 text-zinc-200'
+            }`}>
+              <p className="font-bold text-xs text-blue-500 flex items-center gap-1">
+                <span>حساب زائر تجريبي</span>
+              </p>
+              <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                سجل دخولك مجاناً للحصول على 25,000 توكن شهرياً وحفظ دائم لسجل محادثاتك.
+              </p>
               <button
-                onClick={onOpenPlans}
-                className="text-[10px] text-blue-500 hover:underline font-medium"
+                onClick={onOpenAuth}
+                className="w-full mt-1 py-1.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[11px] transition-colors text-center"
               >
-                الخطط
+                إنشاء حساب مجاني
               </button>
             </div>
-
-            <div className={`w-full h-1 rounded-full overflow-hidden ${theme === 'light' ? 'bg-zinc-200' : 'bg-white/5'}`}>
-              <div
-                className="h-full bg-blue-500 rounded-full transition-all"
-                style={{ width: `${usagePercent}%` }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-[10px] text-zinc-400">
-              <span>المتبقي: {remainingTokens.toLocaleString('ar-EG')}</span>
-              <span>{usagePercent}%</span>
-            </div>
-          </div>
+          )}
 
           {/* Sidebar Menu Items */}
           <div className={`p-2 border-t space-y-0.5 text-xs ${

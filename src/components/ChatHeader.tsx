@@ -102,19 +102,21 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-zinc-600" />}
         </button>
 
-        {/* Token Balance Button */}
-        <button
-          onClick={onOpenPlans}
-          className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg border text-xs font-medium transition-colors ${
-            theme === 'light'
-              ? 'bg-zinc-100 hover:bg-zinc-200 border-zinc-200 text-zinc-800'
-              : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300'
-          }`}
-          title="عرض رصيد التوكنز والخطط"
-        >
-          <Coins className="w-3 h-3 text-zinc-400" />
-          <span>{remainingTokens > 1000 ? `${(remainingTokens / 1000).toFixed(0)}k` : remainingTokens} توكن</span>
-        </button>
+        {/* Token Balance Button (Only for logged-in users) */}
+        {user && (
+          <button
+            onClick={onOpenPlans}
+            className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg border text-xs font-medium transition-colors ${
+              theme === 'light'
+                ? 'bg-zinc-100 hover:bg-zinc-200 border-zinc-200 text-zinc-800'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300'
+            }`}
+            title="عرض رصيد التوكنز والخطط"
+          >
+            <Coins className="w-3 h-3 text-zinc-400" />
+            <span>{remainingTokens > 1000 ? `${(remainingTokens / 1000).toFixed(0)}k` : remainingTokens} توكن</span>
+          </button>
+        )}
 
         {/* User Account Dropdown */}
         <div className="relative" ref={userDropdownRef}>
