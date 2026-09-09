@@ -11,6 +11,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { AuthModal } from '@/components/AuthModal';
 import { PlansModal } from '@/components/PlansModal';
 import { IntegrationsModal } from '@/components/IntegrationsModal';
+import { TtsStudioModal } from '@/components/TtsStudioModal';
 import { ChatSession, ChatMessage, AppSettings, normalizePlan } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -38,6 +39,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isPlansModalOpen, setIsPlansModalOpen] = useState<boolean>(false);
   const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState<boolean>(false);
+  const [isTtsStudioOpen, setIsTtsStudioOpen] = useState<boolean>(false);
 
   // PWA Prompt
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -718,6 +720,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
           onSendMessage={handleSendMessage}
           isGenerating={isGenerating}
           onOpenIntegrations={() => router.push('/integrations')}
+          onOpenTtsStudio={() => setIsTtsStudioOpen(true)}
           userPlan={userProfile.plan || 'free'}
           onRequireUpgrade={handleRequireUpgrade}
         />
@@ -753,6 +756,12 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         isOpen={isIntegrationsModalOpen}
         onClose={() => setIsIntegrationsModalOpen(false)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
+      />
+
+      <TtsStudioModal
+        isOpen={isTtsStudioOpen}
+        onClose={() => setIsTtsStudioOpen(false)}
+        onRequireUpgrade={handleRequireUpgrade}
       />
 
     </main>

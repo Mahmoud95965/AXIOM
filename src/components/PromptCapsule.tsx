@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowUp, Image as ImageIcon, Globe, X, Link2, Wand2 } from 'lucide-react';
+import { ArrowUp, Image as ImageIcon, Globe, X, Link2, Wand2, Mic } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 interface PromptCapsuleProps {
   onSendMessage: (text: string, image: string | null, isWebSearch?: boolean, isImageGen?: boolean) => void;
   isGenerating: boolean;
   onOpenIntegrations?: () => void;
+  onOpenTtsStudio?: () => void;
   userPlan?: string;
   onRequireUpgrade?: (feature: string) => void;
 }
@@ -16,6 +17,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
   onSendMessage,
   isGenerating,
   onOpenIntegrations,
+  onOpenTtsStudio,
   userPlan = 'free',
   onRequireUpgrade
 }) => {
@@ -50,7 +52,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
   const handleToggleImageGen = () => {
     if (!isProOrMax) {
       if (onRequireUpgrade) {
-        onRequireUpgrade('تخليق وصناعة الصور بالذكاء الاصطناعي (FLUX.2 Pro)');
+        onRequireUpgrade('تخليق وصناعة الصور (FLUX.2 Pro)');
       }
       return;
     }
@@ -58,13 +60,14 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
   };
 
   const handleSend = () => {
-    if ((!text.trim() && !selectedImage) || isGenerating) return;
-    onSendMessage(text.trim(), selectedImage, isWebSearch, isImageGen);
-    setText('');
-    setSelectedImage(null);
-    setIsImageGen(false);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+    if ((text.trim() || selectedImage) && !isGenerating) {
+      onSendMessage(text.trim(), selectedImage, isWebSearch, isImageGen);
+      setText('');
+      setSelectedImage(null);
+      setIsImageGen(false);
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -139,52 +142,65 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
             </div>
           )}
 
-          {/* Text Input Area */}
+          {/* Textarea for Prompt */}
           <textarea
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
-            dir="auto"
             placeholder={
-              isImageGen
-                ? "اكتب وصفاً مفصلاً للصورة بنموذج FLUX.2 Pro (مثال: صورة فوتوغرافية لثعلب أحمر في غابة خريفية)..."
-                : "اسأل AXIOM V2 أو اطلب المساعدة في كودك البرمجي..."
+              isImageGen 
+                ? "صف المشهد أو الصورة المراد تخليقها بنموذج FLUX.2 Pro..." 
+                : "اسأل AXIOM V2 عن أي شيء أو اكتب فكرتك..."
             }
             rows={1}
-            disabled={isGenerating}
-            className={`w-full bg-transparent text-xs sm:text-sm resize-none px-2 py-1 max-h-36 sm:max-h-44 text-right focus:outline-none bidi-arabic ${
+            className={`w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm max-h-44 leading-relaxed font-normal text-right bidi-arabic ${
               theme === 'light'
                 ? 'text-zinc-900 placeholder-zinc-400'
                 : 'text-zinc-100 placeholder-zinc-500'
             }`}
           />
 
-          {/* Action Toolbar */}
-          <div className={`flex items-center justify-between mt-1 pt-1.5 border-t gap-1 ${
-            theme === 'light' ? 'border-zinc-100' : 'border-white/5'
-          }`}>
+          {/* Bottom Action Toolbar inside Capsule */}
+          <div className="flex items-center justify-between mt-2 pt-1 border-t border-zinc-100 dark:border-white/[0.04]">
             
-            {/* Left Options: Image Gen, Web Search, Attachments & Integrations */}
-            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto">
+            {/* Left: Interactive Tools & Modals */}
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
               
-              {/* AI Image Generation Toggle (Pro / Max Exclusive) */}
+              {/* FLUX Image Generation Mode Toggle */}
               <button
                 type="button"
                 onClick={handleToggleImageGen}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl text-xs font-medium transition-colors shrink-0 ${
                   isImageGen
-                    ? 'bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30'
+                    ? 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-xs'
                     : theme === 'light'
                     ? 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
                 }`}
                 title={isProOrMax ? "تخليق وصناعة الصور (FLUX.2 Pro)" : "صناعة الصور (حصري لمشتركي Pro / Max)"}
               >
-                <Wand2 className="w-3.5 h-3.5" />
+                <Wand2 className="w-3.5 h-3.5 text-purple-500" />
                 <span className="text-[11px] hidden xs:inline">صناعة صورة</span>
                 {!isProOrMax && <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold">PRO</span>}
               </button>
+
+              {/* TTS Studio Button (تحويل النص لصوت وتحميله) */}
+              {onOpenTtsStudio && (
+                <button
+                  type="button"
+                  onClick={onOpenTtsStudio}
+                  className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl text-xs font-medium transition-colors shrink-0 ${
+                    theme === 'light'
+                      ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200/50'
+                      : 'text-blue-400 hover:text-blue-300 hover:bg-blue-950/30 border border-blue-500/20'
+                  }`}
+                  title="استوديو تحويل النص إلى صوت وتنزيله (Azure MAI-Voice-2)"
+                >
+                  <Mic className="w-3.5 h-3.5 text-blue-500" />
+                  <span className="text-[11px] hidden xs:inline font-semibold">تحويل لصوت</span>
+                </button>
+              )}
 
               {/* Web Search Toggle (Pro / Max Exclusive) */}
               <button
@@ -225,7 +241,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
                 <ImageIcon className="w-4 h-4" />
               </button>
 
-              {/* Integration Link Button (أيقونة صفحة التكاملات) */}
+              {/* Integration Link Button */}
               <button
                 type="button"
                 onClick={onOpenIntegrations}
@@ -262,10 +278,6 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
           </div>
 
         </div>
-
-        <p className={`text-center text-[10px] mt-1.5 sm:mt-2 bidi-arabic ${theme === 'light' ? 'text-zinc-400' : 'text-zinc-500'}`}>
-          قد يخطئ الذكاء الاصطناعي أحياناً، يرجى مراجعة المعلومات الهامة.
-        </p>
 
       </div>
     </div>
