@@ -190,7 +190,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
                 ? "صف المشهد أو الصورة المراد تخليقها بنموذج FLUX.2 Pro..." 
                 : isVoiceGen
                 ? "اكتب أو الصق النص الذي تريد تحويله إلى ملف صوتي بنموذج AXIOM-Voice..."
-                : "اسأل AXIOM V2 عن أي شيء أو اكتب فكرتك..."
+                : "اسأل AXIOM عن أي شيء أو اكتب فكرتك..."
             }
             rows={1}
             className={`w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm max-h-44 leading-relaxed font-normal text-right bidi-arabic ${

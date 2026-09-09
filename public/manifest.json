@@ -1,7 +1,7 @@
 {
-  "name": "AXIOM V2 • TOLZY AI",
-  "short_name": "AXIOM V2",
-  "description": "المساعد الذكي فائق التطور AXIOM V2 المدعوم من منظومة TOLZY AI للبرمجة وحل المشكلات المعقدة وتوليد الصور.",
+  "name": "AXIOM • TOLZY AI",
+  "short_name": "AXIOM",
+  "description": "المساعد الذكي فائق التطور AXIOM المدعوم من منظومة TOLZY AI للبرمجة وحل المشكلات المعقدة وتوليد الصور وتوليد الصوتيات.",
   "start_url": "/",
   "scope": "/",
   "id": "/",
@@ -30,7 +30,7 @@
     {
       "name": "محادثة جديدة",
       "short_name": "شات جديد",
-      "description": "بدء محادثة ذكية جديدة مع AXIOM V2",
+      "description": "بدء محادثة ذكية جديدة مع AXIOM",
       "url": "/",
       "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     },

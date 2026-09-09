@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, PanelRightOpen, Coins, User, LogOut, ExternalLink, Settings, Sun, Moon, Link2, Download, Smartphone } from 'lucide-react';
+import { Menu, PanelRightOpen, Coins, User, LogOut, ExternalLink, Settings, Sun, Moon, Link2, Download } from 'lucide-react';
 import { PLAN_CONFIGS, TOLZY_PRICING_URL } from '../lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -66,7 +66,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
         <div className="flex items-center gap-1.5 text-xs font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          <span>AXIOM V2</span>
+          <span>AXIOM</span>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 ? 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600 shadow-2xs'
                 : 'bg-blue-950/40 hover:bg-blue-900/60 border-blue-500/30 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]'
             }`}
-            title="تثبيت وتنزيل تطبيق AXIOM V2"
+            title="تثبيت وتنزيل تطبيق AXIOM"
           >
             <Download className="w-3.5 h-3.5 text-blue-500 shrink-0" />
             <span className="hidden xs:inline font-semibold">تنزيل التطبيق</span>
@@ -102,7 +102,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-zinc-600" />}
         </button>
 
-        {/* Token Balance Button (Only for logged-in users) */}
+        {/* Token Balance Button (Real full number) */}
         {user && (
           <button
             onClick={onOpenPlans}
@@ -114,7 +114,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             title="عرض رصيد التوكنز والخطط"
           >
             <Coins className="w-3 h-3 text-zinc-400" />
-            <span>{remainingTokens > 1000 ? `${(remainingTokens / 1000).toFixed(0)}k` : remainingTokens} توكن</span>
+            <span>{remainingTokens.toLocaleString('ar-EG')} توكن</span>
           </button>
         )}
 

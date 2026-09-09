@@ -99,7 +99,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {mode === 'register' && 'إنشاء حساب جديد في TOLZY'}
                 {mode === 'forgot' && 'استعادة كلمة المرور'}
               </h2>
-              <p className="text-xs text-gray-400">بوابة الدخول الموحدة لـ AXIOM V2</p>
+              <p className="text-xs text-gray-400">بوابة الدخول الموحدة لـ AXIOM</p>
             </div>
           </div>
           <button
@@ -258,7 +258,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className="text-[#a8c7fa] font-bold hover:underline"
               >
-                إنشاء حساب مجاني (25k توكن)
+                إنشاء حساب مجاني (25,000 توكن)
               </button>
             </p>
           )}

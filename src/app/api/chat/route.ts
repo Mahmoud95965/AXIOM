@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
     const rawEndpoint = process.env.AZURE_OPENAI_ENDPOINT?.trim().replace(/\/+$/, '') || '';
     const apiKey = process.env.AZURE_OPENAI_API_KEY?.trim() || '';
-    const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME?.trim() || 'AXIOM-V2';
+    const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME?.trim() || 'AXIOM';
     const apiVersion = process.env.AZURE_OPENAI_API_VERSION?.trim() || '2024-08-01-preview';
 
     const lastMessage = messages[messages.length - 1];
@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
       return streamCustomText(fallbackResponse);
     }
 
-    // إعداد الـ System Prompt القوي والاحترافي لـ AXIOM V2
+    // إعداد الـ System Prompt القوي والاحترافي لـ AXIOM
     const systemPrompt = {
       role: 'system',
-      content: `أنت AXIOM V2، المساعد الذكي وكبير مهندسي البرمجيات المعماريين (Senior Principal AI Architect) لمنظومة TOLZY AI.
+      content: `أنت AXIOM، المساعد الذكي وكبير مهندسي البرمجيات المعماريين (Senior Principal AI Architect) لمنظومة TOLZY AI.
 
 ### 🌟 المبادئ الجوهرية وطريقة العمل:
 1. **الدقة والاحترافية الفائقة**:
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
 
       if (azureRes.status === 429) {
         const rateLimitNotice = `> ⚠️ **ملاحظة:** تم استهلاك الحصة اللحظية للنموذج في Azure.
-> تم توليد الإجابة الحالية عبر **AXIOM V2 Engine** لتفادي التوقف، وتتجدد الحصة تلقائياً.
+> تم توليد الإجابة الحالية عبر **AXIOM Engine** لتفادي التوقف، وتتجدد الحصة تلقائياً.
 
 ---
 

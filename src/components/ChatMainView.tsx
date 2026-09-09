@@ -12,6 +12,12 @@ import { AuthModal } from '@/components/AuthModal';
 import { PlansModal } from '@/components/PlansModal';
 import { IntegrationsModal } from '@/components/IntegrationsModal';
 import { ChatSession, ChatMessage, AppSettings, normalizePlan } from '@/lib/types';
+import { 
+  saveChatToFirestore, 
+  loadUserChatsFromFirestore, 
+  deleteChatFromFirestore, 
+  clearAllUserChatsFromFirestore 
+} from '@/lib/chatStorage';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -152,6 +158,68 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
     }
   }, [chats, isMounted]);
 
+  // 3. Sync chats with Firestore when user logs in
+  useEffect(() => {
+    if (!user) return;
+
+    let isCancelled = false;
+
+    const syncUserChats = async () => {
+      try {
+        const cloudChats = await loadUserChatsFromFirestore(user.uid);
+        if (isCancelled) return;
+
+        if (cloudChats && cloudChats.length > 0) {
+          setChats((prevChats) => {
+            const chatMap = new Map<string, ChatSession>();
+
+            // Include local non-empty chats first
+            prevChats.forEach((c) => {
+              if (c.messages && c.messages.length > 0) {
+                chatMap.set(c.id, c);
+              }
+            });
+
+            // Merge / overwrite with cloud chats
+            cloudChats.forEach((c) => {
+              chatMap.set(c.id, c);
+            });
+
+            const merged = Array.from(chatMap.values()).sort(
+              (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+            );
+
+            // Sync any local-only chats up to Firestore so they are preserved in cloud
+            prevChats.forEach((c) => {
+              if (c.messages && c.messages.length > 0 && !cloudChats.some((cc) => cc.id === c.id)) {
+                saveChatToFirestore(user.uid, c);
+              }
+            });
+
+            return merged.length > 0 ? merged : prevChats;
+          });
+        } else {
+          // If no cloud chats, sync all existing local non-empty chats to Firestore
+          setChats((prevChats) => {
+            const localNonEmpty = prevChats.filter((c) => c.messages && c.messages.length > 0);
+            localNonEmpty.forEach((c) => {
+              saveChatToFirestore(user.uid, c);
+            });
+            return prevChats;
+          });
+        }
+      } catch (err) {
+        console.warn('Firestore chats sync error:', err);
+      }
+    };
+
+    syncUserChats();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user]);
+
   // Current active chat object & messages
   const currentChat = chats.find((c) => c.id === currentChatId) || chats[0] || {
     id: 'draft',
@@ -198,6 +266,10 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
     e.stopPropagation();
     const remaining = chats.filter((c) => c.id !== id);
 
+    if (user?.uid) {
+      deleteChatFromFirestore(user.uid, id);
+    }
+
     if (currentChatId === id) {
       const nextChat = remaining.find((c) => c.messages.length > 0);
       if (nextChat) {
@@ -230,6 +302,9 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
       createdAt: new Date().toISOString(),
       messages: []
     };
+    if (user?.uid) {
+      clearAllUserChatsFromFirestore(user.uid);
+    }
     setChats([draftChat]);
     setCurrentChatId(draftId);
     try {
@@ -394,12 +469,16 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         setChats((prevChats) =>
           prevChats.map((c) => {
             if (c.id === targetChatId) {
-              return {
+              const updatedChat: ChatSession = {
                 ...c,
                 messages: c.messages.map((m) =>
-                  m.id === aiMessageId ? { ...m, text: generatedImageMarkdown } : m
+                  m.id === aiMessageId ? { ...m, text: generatedImageMarkdown, image: imgData.imageUrl } : m
                 ),
               };
+              if (user?.uid) {
+                saveChatToFirestore(user.uid, updatedChat);
+              }
+              return updatedChat;
             }
             return c;
           })
@@ -507,12 +586,16 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         setChats((prevChats) =>
           prevChats.map((c) => {
             if (c.id === targetChatId) {
-              return {
+              const updatedChat: ChatSession = {
                 ...c,
                 messages: c.messages.map((m) =>
                   m.id === aiMessageId ? { ...m, text: generatedAudioMarkdown, audio: ttsData.audioUrl } : m
                 ),
               };
+              if (user?.uid) {
+                saveChatToFirestore(user.uid, updatedChat);
+              }
+              return updatedChat;
             }
             return c;
           })
@@ -560,7 +643,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         },
         body: JSON.stringify({
           messages: existingMessages,
-          model: 'axiom_v2',
+          model: 'axiom',
           attachedImage: image,
           isWebSearch: isWebSearch && isProOrMax,
           userId: user?.uid || null
@@ -599,6 +682,17 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
             return c;
           })
         );
+      }
+
+      // Save complete chat to Firestore
+      if (user?.uid) {
+        setChats((prevChats) => {
+          const finalChat = prevChats.find((c) => c.id === targetChatId);
+          if (finalChat) {
+            saveChatToFirestore(user.uid, finalChat);
+          }
+          return prevChats;
+        });
       }
 
       setIsGenerating(false);
@@ -683,7 +777,7 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         },
         body: JSON.stringify({
           messages: messagesForApi,
-          model: 'axiom_v2',
+          model: 'axiom',
           attachedImage: lastUserMsg.image || null,
           userId: user?.uid || null
         }),
@@ -720,6 +814,17 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
             return c;
           })
         );
+      }
+
+      // Save complete chat to Firestore
+      if (user?.uid) {
+        setChats((prevChats) => {
+          const finalChat = prevChats.find((c) => c.id === targetChatId);
+          if (finalChat) {
+            saveChatToFirestore(user.uid, finalChat);
+          }
+          return prevChats;
+        });
       }
 
       setIsGenerating(false);

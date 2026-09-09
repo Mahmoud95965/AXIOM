@@ -1,6 +1,6 @@
 export function generateAIPromptResponse(prompt: string, attachedImage: string | null, isWebSearch: boolean = false): string {
   const p = (prompt || '').toLowerCase();
-  const modelName = 'AXIOM V2';
+  const modelName = 'AXIOM';
 
   if (attachedImage) {
     return `### 🔍 تحليل وفحص الصورة بواسطة ${modelName}
@@ -57,7 +57,7 @@ export const ModernDashboard: React.FC = () => {
 
   return (
     <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-white">
-      <h2 className="text-lg font-bold mb-4">لوحة تحكم AXIOM V2</h2>
+      <h2 className="text-lg font-bold mb-4">لوحة تحكم AXIOM</h2>
       <div className="space-y-2">
         {state.data.map((item) => (
           <div key={item.id} className="p-3 rounded-xl bg-zinc-800/50 flex justify-between items-center text-sm">
@@ -77,7 +77,7 @@ export const ModernDashboard: React.FC = () => {
 * **Responsive & Accessible**: توافق تام مع مختلف الشاشات ومعايير الـ UX.`;
   }
 
-  return `### 💡 إجابة AXIOM V2 • TOLZY AI
+  return `### 💡 إجابة AXIOM • TOLZY AI
 
 أهلاً بك! رداً على استفسارك: **"${prompt}"**
 

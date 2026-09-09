@@ -340,7 +340,7 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
         </div>
 
         <h1 className={`text-xl sm:text-3xl font-extrabold mb-1.5 sm:mb-2 tracking-tight ${theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
-          AXIOM V2
+          AXIOM
         </h1>
         
         <p className={`text-xs sm:text-sm max-w-md leading-relaxed px-2 bidi-arabic ${theme === 'light' ? 'text-zinc-500' : 'text-zinc-400'}`}>
@@ -490,7 +490,7 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
                 {/* Header Tag */}
                 <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-zinc-100 dark:border-white/5">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-xs">AXIOM V2</span>
+                    <span className="font-bold text-xs">AXIOM</span>
                     <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold border border-blue-500/20">
                       TOLZY AI
                     </span>

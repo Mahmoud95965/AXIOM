@@ -76,7 +76,7 @@ export const SidebarDrawer: React.FC<SidebarProps> = ({
             theme === 'light' ? 'border-zinc-200' : 'border-white/[0.06]'
           }`}>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm">AXIOM V2</span>
+              <span className="font-bold text-sm">AXIOM</span>
               <span className="text-[10px] text-zinc-400">TOLZY</span>
             </div>
 
@@ -175,7 +175,7 @@ export const SidebarDrawer: React.FC<SidebarProps> = ({
               </div>
 
               <div className="flex items-center justify-between text-[10px] text-zinc-400">
-                <span>المتبقي: {remainingTokens.toLocaleString('ar-EG')}</span>
+                <span>المتبقي: {remainingTokens.toLocaleString('ar-EG')} / {userProfile.tokensLimit.toLocaleString('ar-EG')} توكن</span>
                 <span>{usagePercent}%</span>
               </div>
             </div>

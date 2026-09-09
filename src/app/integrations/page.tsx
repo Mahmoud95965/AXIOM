@@ -26,7 +26,7 @@ const UPCOMING_CONNECTORS_LIST: ConnectorItem[] = [
     id: 'github',
     name: 'GitHub Connector',
     category: 'code',
-    description: 'مزامنة الكود البرمجي، مراجعة الـ Pull Requests، وإنشاء الـ Commits والمستودعات تلقائياً عبر AXIOM V2.',
+    description: 'مزامنة الكود البرمجي، مراجعة الـ Pull Requests، وإنشاء الـ Commits والمستودعات تلقائياً عبر AXIOM.',
     version: 'v3.0.0 Next Release',
     badge: 'قريباً',
     authType: 'OAuth 2.0 (Direct Sync)',
@@ -255,7 +255,7 @@ export default function IntegrationsPage() {
             <p className={`text-xs sm:text-sm leading-relaxed mb-6 ${
               theme === 'light' ? 'text-zinc-600' : 'text-zinc-400'
             }`}>
-              يجري حالياً تجهيز وإطلاق الموصلات الرسمية لمنظومة TOLZY AI لتمكين AXIOM V2 من التفاعل المباشر مع ملفاتك البرمجية، قواعد بيانات Supabase، مستندات Google Drive، ومشاريع GitHub و Figma تلقائياً.
+              يجري حالياً تجهيز وإطلاق الموصلات الرسمية لمنظومة TOLZY AI لتمكين AXIOM من التفاعل المباشر مع ملفاتك البرمجية، قواعد بيانات Supabase، مستندات Google Drive، ومشاريع GitHub و Figma تلقائياً.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -419,7 +419,7 @@ export default function IntegrationsPage() {
         <div className={`mt-12 pt-6 border-t flex flex-col sm:flex-row items-center justify-between text-xs gap-3 ${
           theme === 'light' ? 'border-zinc-200 text-zinc-500' : 'border-white/[0.06] text-zinc-500'
         }`}>
-          <span>دليل الموصلات والتكاملات القادمة لـ AXIOM V2 • منظومة TOLZY AI.</span>
+          <span>دليل الموصلات والتكاملات القادمة لـ AXIOM • منظومة TOLZY AI.</span>
           <span className="text-[11px] opacity-70">Model Context Protocol (MCP Roadmap)</span>
         </div>
 

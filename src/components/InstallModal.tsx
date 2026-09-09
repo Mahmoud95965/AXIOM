@@ -49,7 +49,7 @@ export const InstallModal: React.FC<InstallModalProps> = ({ isOpen, onClose, onI
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              تثبيت تطبيق AXIOM V2
+              تثبيت تطبيق AXIOM
             </h2>
           </div>
         </div>
@@ -57,7 +57,7 @@ export const InstallModal: React.FC<InstallModalProps> = ({ isOpen, onClose, onI
         <p className={`text-xs sm:text-sm mb-6 leading-relaxed ${
           theme === 'light' ? 'text-zinc-600' : 'text-zinc-400'
         }`}>
-          ثبّت AXIOM V2 على شاشتك الرئيسية أو سطح المكتب لتجربة سريعة وفائقة الاستجابة تعمل بدون متصفح مع إشعارات فورية وأداء سلس.
+          ثبّت AXIOM على شاشتك الرئيسية أو سطح المكتب لتجربة سريعة وفائقة الاستجابة تعمل بدون متصفح مع إشعارات فورية وأداء سلس.
         </p>
 
         {/* Main Action Buttons */}

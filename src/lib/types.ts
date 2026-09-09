@@ -1,4 +1,4 @@
-export type ModelType = 'axiom_v2';
+export type ModelType = 'axiom';
 
 export type UserPlan = 'free' | 'pro' | 'max';
 
@@ -41,7 +41,7 @@ export const PLAN_CONFIGS: Record<UserPlan, PlanConfig> = {
     dailyLimitLabel: '2,500 توكن يومياً',
     price: '0$ مجاناً',
     features: [
-      'وصول مباشر لنموذج AXIOM V2',
+      'وصول مباشر لنموذج AXIOM',
       '2,500 توكن ذكاء اصطناعي يومياً (25,000 شهرياً)',
       'إجابات دقيقة وكتابة أكواد برمجية',
       'تجربة تحويل النص إلى صوت (دقيقة واحدة مدى الحياة)',
@@ -59,7 +59,7 @@ export const PLAN_CONFIGS: Record<UserPlan, PlanConfig> = {
     dailyLimitLabel: '30,000 توكن يومياً',
     price: '9.99$ / شهرياً',
     features: [
-      'وصول كامل لنموذج AXIOM V2 بسرعة مضاعفة',
+      'وصول كامل لنموذج AXIOM بسرعة مضاعفة',
       '30,000 توكن يومياً (300,000 شهرياً)',
       'استوديو تحويل النص إلى صوت غير محدود (Azure MAI-Voice-2)',
       'تنزيل الملفات الصوتية بجودة WAV عالية النقاء',

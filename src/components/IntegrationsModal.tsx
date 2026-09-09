@@ -37,7 +37,7 @@ export const IntegrationsModal: React.FC<IntegrationsModalProps> = ({
         {/* Header */}
         <div className="mb-5">
           <h2 className="text-lg font-bold mb-1">دليل الموصلات والتكاملات (MCP)</h2>
-          <p className="text-xs text-zinc-400">إدارة الأدوات السحابية والتكاملات المتوافقة مع مساعد AXIOM V2</p>
+          <p className="text-xs text-zinc-400">إدارة الأدوات السحابية والتكاملات المتوافقة مع مساعد AXIOM</p>
         </div>
 
         {/* Notice */}

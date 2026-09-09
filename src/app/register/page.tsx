@@ -116,7 +116,7 @@ export default function RegisterPage() {
         <div className="mb-6 p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-purple-950/40 border border-purple-500/30 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-purple-200 font-bold">
             <Zap className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>هدية الترحيب: 25k توكن</span>
+            <span>هدية الترحيب: 25,000 توكن</span>
           </div>
           <span className="text-[11px] text-gray-400">تجدد شهرياً مجاناً</span>
         </div>

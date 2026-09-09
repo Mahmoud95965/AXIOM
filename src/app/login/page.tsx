@@ -90,7 +90,7 @@ export default function LoginPage() {
             تسجيل الدخول إلى <span className="gradient-text">TOLZY</span>
           </h1>
           <p className="text-xs sm:text-sm text-gray-400">
-            بوابتك الموحدة للوصول إلى مساعد <strong>AXIOM V2</strong> الذكي
+            بوابتك الموحدة للوصول إلى مساعد <strong>AXIOM</strong> الذكي
           </p>
         </div>
 

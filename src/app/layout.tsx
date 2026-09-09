@@ -5,13 +5,12 @@ import { Providers } from '@/components/Providers';
 export const metadata: Metadata = {
   metadataBase: new URL('https://axiom.tolzy.me'),
   title: {
-    default: 'AXIOM V2 | TOLZY AI - المساعد الذكي فائق التطور',
-    template: '%s | AXIOM V2 - TOLZY AI'
+    default: 'AXIOM | TOLZY AI - المساعد الذكي فائق التطور',
+    template: '%s | AXIOM - TOLZY AI'
   },
-  description: 'المساعد الذكي فائق التطور AXIOM V2 من منظومة TOLZY AI. يوفر حلول برمجية ذكية، تخليق صور مذهلة بنموذج FLUX.2 Pro، بحث حي عبر الإنترنت، وتجربة دردشة ثنائية مصممة للغة العربية.',
+  description: 'المساعد الذكي فائق التطور AXIOM من منظومة TOLZY AI. يوفر حلول برمجية ذكية، تخليق صور مذهلة بنموذج FLUX.2 Pro، تحويل النص إلى صوت بنموذج AXIOM-Voice، بحث حي عبر الإنترنت، وتجربة دردشة ثنائية مصممة للغة العربية.',
   keywords: [
     'AXIOM',
-    'AXIOM V2',
     'TOLZY AI',
     'TOLZY',
     'ذكاء اصطناعي',
@@ -19,6 +18,8 @@ export const metadata: Metadata = {
     'توليد الصور',
     'تخليق الصور',
     'FLUX.2 Pro',
+    'AXIOM-Voice',
+    'تحويل النص إلى صوت',
     'شات بوت عربي',
     'برمجة وأكواد',
     'بحث حي عبر الويب',
@@ -47,22 +48,22 @@ export const metadata: Metadata = {
     locale: 'ar_AR',
     alternateLocale: ['en_US', 'ar_EG', 'ar_SA'],
     url: 'https://axiom.tolzy.me',
-    siteName: 'AXIOM V2 | TOLZY AI',
-    title: 'AXIOM V2 | TOLZY AI - المساعد الذكي فائق التطور',
-    description: 'المساعد الذكي فائق التطور AXIOM V2 من منظومة TOLZY AI للبرمجة وتخليق الصور بنموذج FLUX.2 Pro والبحث المباشر عبر الإنترنت.',
+    siteName: 'AXIOM | TOLZY AI',
+    title: 'AXIOM | TOLZY AI - المساعد الذكي فائق التطور',
+    description: 'المساعد الذكي فائق التطور AXIOM من منظومة TOLZY AI للبرمجة وتخليق الصور بنموذج FLUX.2 Pro وتوليد الصوت بنموذج AXIOM-Voice والبحث المباشر.',
     images: [
       {
         url: '/icon-512.svg',
         width: 512,
         height: 512,
-        alt: 'شعار AXIOM V2 المساعد الذكي',
+        alt: 'شعار AXIOM المساعد الذكي',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AXIOM V2 | TOLZY AI - المساعد الذكي فائق التطور',
-    description: 'المساعد الذكي فائق التطور AXIOM V2 من منظومة TOLZY AI للبرمجة وتوليد الصور بنموذج FLUX.2 Pro والبحث المباشر.',
+    title: 'AXIOM | TOLZY AI - المساعد الذكي فائق التطور',
+    description: 'المساعد الذكي فائق التطور AXIOM من منظومة TOLZY AI للبرمجة وتوليد الصور والصوت والبحث المباشر.',
     creator: '@tolzy_ai',
     images: ['/icon-512.svg'],
   },
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'AXIOM V2',
+    title: 'AXIOM',
   },
   icons: {
     icon: [
@@ -128,8 +129,8 @@ export default function RootLayout({
         '@type': 'WebSite',
         '@id': 'https://axiom.tolzy.me/#website',
         'url': 'https://axiom.tolzy.me',
-        'name': 'AXIOM V2',
-        'description': 'المساعد الذكي فائق التطور AXIOM V2 من منظومة TOLZY AI',
+        'name': 'AXIOM',
+        'description': 'المساعد الذكي فائق التطور AXIOM من منظومة TOLZY AI',
         'publisher': {
           '@id': 'https://tolzy.me/#organization'
         },
@@ -138,7 +139,7 @@ export default function RootLayout({
       {
         '@type': 'SoftwareApplication',
         '@id': 'https://axiom.tolzy.me/#app',
-        'name': 'AXIOM V2',
+        'name': 'AXIOM',
         'operatingSystem': 'All',
         'applicationCategory': 'BusinessApplication, DeveloperApplication, MultimediaApplication',
         'offers': {
@@ -146,7 +147,7 @@ export default function RootLayout({
           'price': '0',
           'priceCurrency': 'USD'
         },
-        'description': 'مساعد الذكاء الاصطناعي AXIOM V2 لكتابة الأكواد وتخليق الصور بنموذج FLUX.2 Pro والبحث المباشر عبر الإنترنت.'
+        'description': 'مساعد الذكاء الاصطناعي AXIOM لكتابة الأكواد وتخليق الصور بنموذج FLUX.2 Pro وتوليد الصوت بنموذج AXIOM-Voice والبحث المباشر عبر الإنترنت.'
       }
     ]
   };
