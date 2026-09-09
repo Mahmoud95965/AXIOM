@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
+import { uploadAudioToAzureStorage } from '@/lib/azureStorage';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, voice } = await req.json();
+    const { text, voice, returnJson, userId } = await req.json();
 
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return NextResponse.json({ error: 'النص المطلوب تحويله إلى صوت مطلوب وغير صالح' }, { status: 400 });
@@ -30,11 +31,10 @@ export async function POST(req: NextRequest) {
     const speechKey = process.env.AZURE_SPEECH_KEY?.trim() || '';
 
     if (!speechKey) {
-      return NextResponse.json({ error: 'مفتاح خدمة تحويل النص إلى كلام غير مهيأ' }, { status: 500 });
+      return NextResponse.json({ error: 'مفتاح خدمة تحويل النص إلى كلام AXIOM-Voice غير مهيأ' }, { status: 500 });
     }
 
-    // Determine voice: default to MAI-Voice-2 or requested voice
-    // If text contains Arabic characters and no specific voice was passed, prioritize high-quality Arabic neural voice
+    // Determine voice: default to AXIOM-Voice (Ethan MAI-Voice-2) or requested voice
     const isArabic = /[\u0600-\u06FF]/.test(cleanText);
     const requestedVoice = voice || (isArabic ? 'ar-SA-HamedNeural' : (process.env.AZURE_SPEECH_DEFAULT_VOICE || 'en-US-Ethan:MAI-Voice-2'));
 
@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
     try {
       speechConfig = sdk.SpeechConfig.fromEndpoint(new URL(speechEndpoint), speechKey);
     } catch (endpointErr) {
-      // Fallback to subscription if endpoint parsing needs custom region
       speechConfig = sdk.SpeechConfig.fromSubscription(speechKey, 'eastus');
     }
 
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
             synthesizer.close();
             resolve(Buffer.from(result.audioData));
           } else {
-            const errorDetails = result.errorDetails || 'فشل توليد الصوت من Azure Speech';
+            const errorDetails = result.errorDetails || 'فشل توليد الصوت من نموذج AXIOM-Voice';
             synthesizer.close();
             reject(new Error(errorDetails));
           }
@@ -75,6 +74,33 @@ export async function POST(req: NextRequest) {
       );
     });
 
+    // If client requested JSON response (for in-chat card rendering)
+    if (returnJson || req.headers.get('accept')?.includes('application/json')) {
+      let finalAudioUrl: string | null = null;
+
+      // Try uploading to Azure Blob Storage
+      try {
+        finalAudioUrl = await uploadAudioToAzureStorage(audioBuffer, userId);
+      } catch (uploadErr) {
+        console.warn('Azure Storage audio upload notice:', uploadErr);
+      }
+
+      // Fallback to data URL if cloud storage isn't connected
+      if (!finalAudioUrl) {
+        finalAudioUrl = `data:audio/wav;base64,${audioBuffer.toString('base64')}`;
+      }
+
+      return NextResponse.json({
+        success: true,
+        audioUrl: finalAudioUrl,
+        prompt: cleanText,
+        model: 'AXIOM-Voice',
+        voice: requestedVoice,
+        size: audioBuffer.byteLength
+      });
+    }
+
+    // Default binary audio response
     return new Response(new Uint8Array(audioBuffer), {
       status: 200,
       headers: {

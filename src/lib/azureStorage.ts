@@ -11,7 +11,6 @@ export async function uploadImageToAzureStorage(
   const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING?.trim();
   let containerName = process.env.AZURE_STORAGE_CONTAINER_NAME?.trim() || 'images';
 
-  // If container name was accidentally set to another connection string or invalid characters, sanitize to 'images'
   if (!containerName || containerName.includes('DefaultEndpointsProtocol') || containerName.length > 63) {
     containerName = 'images';
   }
@@ -25,16 +24,12 @@ export async function uploadImageToAzureStorage(
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     const containerClient = blobServiceClient.getContainerClient(containerName);
 
-    // Ensure container exists with public read access for images
     try {
       await containerClient.createIfNotExists({
         access: 'blob'
       });
-    } catch (e) {
-      // Container may already exist
-    }
+    } catch (e) {}
 
-    // Prepare buffer
     let buffer: Buffer;
     if (typeof base64OrBuffer === 'string') {
       const cleanBase64 = base64OrBuffer.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
@@ -55,11 +50,56 @@ export async function uploadImageToAzureStorage(
       }
     });
 
-    const permanentUrl = blockBlobClient.url;
-    return permanentUrl;
+    return blockBlobClient.url;
 
   } catch (error: any) {
-    console.error('Azure Storage Upload Error:', error?.message || error);
+    console.error('Azure Storage Image Upload Error:', error?.message || error);
+    return null;
+  }
+}
+
+/**
+ * Helper to upload audio buffers directly to Azure Blob Storage Center
+ */
+export async function uploadAudioToAzureStorage(
+  buffer: Buffer,
+  userId?: string,
+  contentType: string = 'audio/wav'
+): Promise<string | null> {
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING?.trim();
+  let containerName = 'audio';
+
+  if (!connectionString) {
+    console.warn('Azure Storage Connection String is not configured in .env.local');
+    return null;
+  }
+
+  try {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+
+    try {
+      await containerClient.createIfNotExists({
+        access: 'blob'
+      });
+    } catch (e) {}
+
+    const cleanUserId = userId ? userId.replace(/[^a-zA-Z0-9_-]/g, '') : 'user';
+    const blobName = `axiom_voice_${cleanUserId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.wav`;
+
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    await blockBlobClient.uploadData(buffer, {
+      blobHTTPHeaders: {
+        blobContentType: contentType,
+        blobCacheControl: 'public, max-age=31536000'
+      }
+    });
+
+    return blockBlobClient.url;
+
+  } catch (error: any) {
+    console.error('Azure Storage Audio Upload Error:', error?.message || error);
     return null;
   }
 }

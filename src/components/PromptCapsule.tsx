@@ -5,10 +5,15 @@ import { ArrowUp, Image as ImageIcon, Globe, X, Link2, Wand2, Mic } from 'lucide
 import { useTheme } from '../context/ThemeContext';
 
 interface PromptCapsuleProps {
-  onSendMessage: (text: string, image: string | null, isWebSearch?: boolean, isImageGen?: boolean) => void;
+  onSendMessage: (
+    text: string, 
+    image: string | null, 
+    isWebSearch?: boolean, 
+    isImageGen?: boolean,
+    isVoiceGen?: boolean
+  ) => void;
   isGenerating: boolean;
   onOpenIntegrations?: () => void;
-  onOpenTtsStudio?: () => void;
   userPlan?: string;
   onRequireUpgrade?: (feature: string) => void;
 }
@@ -17,7 +22,6 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
   onSendMessage,
   isGenerating,
   onOpenIntegrations,
-  onOpenTtsStudio,
   userPlan = 'free',
   onRequireUpgrade
 }) => {
@@ -26,6 +30,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isWebSearch, setIsWebSearch] = useState(false);
   const [isImageGen, setIsImageGen] = useState(false);
+  const [isVoiceGen, setIsVoiceGen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,14 +62,25 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
       return;
     }
     setIsImageGen(!isImageGen);
+    if (!isImageGen) {
+      setIsVoiceGen(false);
+    }
+  };
+
+  const handleToggleVoiceGen = () => {
+    setIsVoiceGen(!isVoiceGen);
+    if (!isVoiceGen) {
+      setIsImageGen(false);
+    }
   };
 
   const handleSend = () => {
     if ((text.trim() || selectedImage) && !isGenerating) {
-      onSendMessage(text.trim(), selectedImage, isWebSearch, isImageGen);
+      onSendMessage(text.trim(), selectedImage, isWebSearch, isImageGen, isVoiceGen);
       setText('');
       setSelectedImage(null);
       setIsImageGen(false);
+      setIsVoiceGen(false);
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
@@ -106,7 +122,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
             : 'bg-[#18181b] border-white/10 focus-within:border-white/20'
         }`}>
           
-          {/* Active Mode Banner */}
+          {/* Active Image Mode Banner */}
           {isImageGen && (
             <div className={`mb-2 px-2.5 py-1 rounded-xl text-xs flex items-center justify-between font-medium ${
               theme === 'light'
@@ -120,6 +136,27 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
               <button
                 type="button"
                 onClick={() => setIsImageGen(false)}
+                className="hover:opacity-75 p-0.5"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Active Voice Mode Banner */}
+          {isVoiceGen && (
+            <div className={`mb-2 px-2.5 py-1 rounded-xl text-xs flex items-center justify-between font-medium ${
+              theme === 'light'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'bg-blue-950/30 text-blue-300 border border-blue-500/20'
+            }`}>
+              <div className="flex items-center gap-1.5 truncate">
+                <Mic className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span className="truncate">وضع تحويل النص إلى صوت (AXIOM-Voice)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsVoiceGen(false)}
                 className="hover:opacity-75 p-0.5"
               >
                 <X className="w-3.5 h-3.5" />
@@ -151,6 +188,8 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
             placeholder={
               isImageGen 
                 ? "صف المشهد أو الصورة المراد تخليقها بنموذج FLUX.2 Pro..." 
+                : isVoiceGen
+                ? "اكتب أو الصق النص الذي تريد تحويله إلى ملف صوتي بنموذج AXIOM-Voice..."
                 : "اسأل AXIOM V2 عن أي شيء أو اكتب فكرتك..."
             }
             rows={1}
@@ -164,7 +203,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
           {/* Bottom Action Toolbar inside Capsule */}
           <div className="flex items-center justify-between mt-2 pt-1 border-t border-zinc-100 dark:border-white/[0.04]">
             
-            {/* Left: Interactive Tools & Modals */}
+            {/* Left: Interactive Tools & Modes */}
             <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
               
               {/* FLUX Image Generation Mode Toggle */}
@@ -173,7 +212,7 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
                 onClick={handleToggleImageGen}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl text-xs font-medium transition-colors shrink-0 ${
                   isImageGen
-                    ? 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-xs'
+                    ? 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-xs font-semibold'
                     : theme === 'light'
                     ? 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
@@ -185,22 +224,22 @@ export const PromptCapsule: React.FC<PromptCapsuleProps> = ({
                 {!isProOrMax && <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold">PRO</span>}
               </button>
 
-              {/* TTS Studio Button (تحويل النص لصوت وتحميله) */}
-              {onOpenTtsStudio && (
-                <button
-                  type="button"
-                  onClick={onOpenTtsStudio}
-                  className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl text-xs font-medium transition-colors shrink-0 ${
-                    theme === 'light'
-                      ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200/50'
-                      : 'text-blue-400 hover:text-blue-300 hover:bg-blue-950/30 border border-blue-500/20'
-                  }`}
-                  title="استوديو تحويل النص إلى صوت وتنزيله (Azure MAI-Voice-2)"
-                >
-                  <Mic className="w-3.5 h-3.5 text-blue-500" />
-                  <span className="text-[11px] hidden xs:inline font-semibold">تحويل لصوت</span>
-                </button>
-              )}
+              {/* AXIOM-Voice Generation Mode Toggle (In-Chat Mode) */}
+              <button
+                type="button"
+                onClick={handleToggleVoiceGen}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl text-xs font-medium transition-colors shrink-0 ${
+                  isVoiceGen
+                    ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-500/30 shadow-xs font-semibold'
+                    : theme === 'light'
+                    ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                    : 'text-blue-400 hover:text-blue-300 hover:bg-blue-950/30'
+                }`}
+                title="تحويل النص إلى صوت داخل الشات (AXIOM-Voice)"
+              >
+                <Mic className="w-3.5 h-3.5 text-blue-500" />
+                <span className="text-[11px] hidden xs:inline font-semibold">توليد صوت</span>
+              </button>
 
               {/* Web Search Toggle (Pro / Max Exclusive) */}
               <button

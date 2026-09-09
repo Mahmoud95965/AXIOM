@@ -11,7 +11,6 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { AuthModal } from '@/components/AuthModal';
 import { PlansModal } from '@/components/PlansModal';
 import { IntegrationsModal } from '@/components/IntegrationsModal';
-import { TtsStudioModal } from '@/components/TtsStudioModal';
 import { ChatSession, ChatMessage, AppSettings, normalizePlan } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -39,7 +38,6 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isPlansModalOpen, setIsPlansModalOpen] = useState<boolean>(false);
   const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState<boolean>(false);
-  const [isTtsStudioOpen, setIsTtsStudioOpen] = useState<boolean>(false);
 
   // PWA Prompt
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -250,7 +248,8 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
     text: string, 
     image: string | null, 
     isWebSearch: boolean = false, 
-    isImageGen: boolean = false
+    isImageGen: boolean = false,
+    isVoiceGen: boolean = false
   ) => {
     if (isGenerating) return;
 
@@ -431,7 +430,120 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
     }
 
     // =========================================================================
-    // 2. Regular Text / Code Chat Stream
+    // 2. AXIOM-Voice Text-to-Speech In-Chat Generation
+    // =========================================================================
+    const isVoiceGenerationRequest =
+      isVoiceGen ||
+      text.startsWith('/voice') ||
+      text.startsWith('/tts') ||
+      text.startsWith('حول لصوت') ||
+      text.startsWith('حول إلى صوت');
+
+    if (isVoiceGenerationRequest) {
+      const freeSecondsUsed = parseFloat(localStorage.getItem('axiom_tts_free_seconds_used') || '0');
+      if (!isProOrMax && freeSecondsUsed >= 60) {
+        setIsGenerating(false);
+        const upgradeRequiredMessage = `> 🔒 **ميزة حصرية:** لقد استنفدت التجربة المجانية لتحويل النص إلى صوت (دقيقة واحدة مدى الحياة).\n\nيرجى الترقية إلى **باقة Pro** أو **باقة Max** للاستمتاع بتحويل وتنزيل ملفات صوتية غير محدودة بنموذج **AXIOM-Voice**.`;
+
+        setChats((prevChats) =>
+          prevChats.map((c) => {
+            if (c.id === targetChatId) {
+              return {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === aiMessageId ? { ...m, text: upgradeRequiredMessage } : m
+                ),
+              };
+            }
+            return c;
+          })
+        );
+
+        setTimeout(() => {
+          setIsPlansModalOpen(true);
+        }, 600);
+        return;
+      }
+
+      // Execute AXIOM-Voice Generation
+      try {
+        const cleanPrompt = text
+          .replace(/^\/voice\s+/i, '')
+          .replace(/^\/tts\s+/i, '')
+          .replace(/^حول\s+إلى\s+صوت\s*[:\s]*/i, '')
+          .replace(/^حول\s+لصوت\s*[:\s]*/i, '')
+          .trim();
+
+        const ttsResponse = await fetch('/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            text: cleanPrompt,
+            returnJson: true,
+            userId: user?.uid
+          })
+        });
+
+        const ttsData = await ttsResponse.json();
+
+        if (!ttsResponse.ok) {
+          throw new Error(ttsData.error || 'فشل توليد الصوت من نموذج AXIOM-Voice');
+        }
+
+        // Update free quota if free plan
+        if (!isProOrMax) {
+          const estimatedSeconds = Math.max(3, Math.round(cleanPrompt.length / 15));
+          const updatedFreeUsed = Math.min(60, freeSecondsUsed + estimatedSeconds);
+          try {
+            localStorage.setItem('axiom_tts_free_seconds_used', updatedFreeUsed.toString());
+          } catch (e) {}
+        }
+
+        const generatedAudioMarkdown = `[audio:${encodeURIComponent(ttsData.audioUrl)}](${encodeURIComponent(ttsData.prompt)})\n\n✨ **تم تحويل النص إلى صوت بنجاح عبر نموذج AXIOM-Voice**\n> 📝 **النص الأصلي:** ${ttsData.prompt}`;
+
+        setChats((prevChats) =>
+          prevChats.map((c) => {
+            if (c.id === targetChatId) {
+              return {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === aiMessageId ? { ...m, text: generatedAudioMarkdown, audio: ttsData.audioUrl } : m
+                ),
+              };
+            }
+            return c;
+          })
+        );
+
+        await consumeTokens(25);
+        setIsGenerating(false);
+        return;
+
+      } catch (ttsErr: any) {
+        console.error('AXIOM-Voice Error:', ttsErr);
+        setIsGenerating(false);
+        setChats((prevChats) =>
+          prevChats.map((c) => {
+            if (c.id === targetChatId) {
+              return {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === aiMessageId ? { ...m, text: `⚠️ تعذر توليد الصوت: ${ttsErr.message || 'حدث خطأ أثناء الاتصال'}` } : m
+                ),
+              };
+            }
+            return c;
+          })
+        );
+        return;
+      }
+    }
+
+    // =========================================================================
+    // 3. Regular Text / Code Chat Stream
     // =========================================================================
     try {
       const chat = chats.find((c) => c.id === targetChatId);
@@ -715,12 +827,11 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
           />
         </div>
 
-        {/* Floating Centered Prompt Capsule with Image Gen, Search & Gating */}
+        {/* Floating Centered Prompt Capsule with Image Gen, Voice Gen, Search & Gating */}
         <PromptCapsule
           onSendMessage={handleSendMessage}
           isGenerating={isGenerating}
           onOpenIntegrations={() => router.push('/integrations')}
-          onOpenTtsStudio={() => setIsTtsStudioOpen(true)}
           userPlan={userProfile.plan || 'free'}
           onRequireUpgrade={handleRequireUpgrade}
         />
@@ -756,12 +867,6 @@ export const ChatMainView: React.FC<ChatMainViewProps> = ({ initialChatId }) => 
         isOpen={isIntegrationsModalOpen}
         onClose={() => setIsIntegrationsModalOpen(false)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
-      />
-
-      <TtsStudioModal
-        isOpen={isTtsStudioOpen}
-        onClose={() => setIsTtsStudioOpen(false)}
-        onRequireUpgrade={handleRequireUpgrade}
       />
 
     </main>

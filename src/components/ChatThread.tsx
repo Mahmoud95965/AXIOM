@@ -187,6 +187,55 @@ export const ChatThread: React.FC<ChatThreadProps> = ({
     if (!text) return '';
     let html = text;
 
+    // Audio tags [audio:url](prompt) - Render sleek interactive in-chat audio card with direct player & download
+    html = html.replace(/\[audio:([^\]]*)\]\(([^\)]*)\)/g, (match, encodedUrl, encodedPrompt) => {
+      let audioUrl = encodedUrl;
+      let promptText = encodedPrompt || 'ملف صوتي مخلق بنموذج AXIOM-Voice';
+      try {
+        audioUrl = decodeURIComponent(encodedUrl);
+        promptText = decodeURIComponent(encodedPrompt || 'ملف صوتي مخلق بنموذج AXIOM-Voice');
+      } catch (e) {}
+
+      return `
+        <div class="my-3.5 rounded-2xl overflow-hidden border ${
+          theme === 'light' ? 'border-blue-200/90 bg-blue-50/50' : 'border-blue-500/20 bg-blue-950/20'
+        } shadow-sm transition-all p-3.5 sm:p-4 text-right">
+          <div class="flex items-center justify-between gap-2 mb-3 pb-2 border-b ${
+            theme === 'light' ? 'border-blue-200/60' : 'border-white/5'
+          }">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span class="font-bold text-xs text-blue-500">AXIOM-Voice</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">
+                Azure AI
+              </span>
+            </div>
+            <span class="text-[10px] text-zinc-400 font-mono">WAV Audio</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <audio controls class="w-full sm:max-w-md h-10 rounded-xl" src="${audioUrl}">
+              متصفحك لا يدعم مشغل الصوت المدمج.
+            </audio>
+
+            <a
+              href="${audioUrl}"
+              download="axiom_voice.wav"
+              class="inline-flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl font-bold text-xs transition-all shrink-0 ${
+                theme === 'light'
+                  ? 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs'
+                  : 'bg-white hover:bg-zinc-200 text-black shadow-xs'
+              }"
+              title="تحميل الملف الصوتي"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>تحميل الصوت (.wav)</span>
+            </a>
+          </div>
+        </div>
+      `;
+    });
+
     // Image tags ![alt](url or data:image) - Render sleek card with overlay icon actions
     html = html.replace(/!\[([^\]]*)\]\(((?:https?:\/\/|data:image\/)[^\)]+)\)/g, (match, alt, url) => {
       const cleanAlt = alt || 'صورة مخلقة عبر FLUX.2 Pro';

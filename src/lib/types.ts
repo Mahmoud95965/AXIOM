@@ -130,9 +130,11 @@ export interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
   image?: string | null;
+  audio?: string | null;
   timestamp: string;
   tokensEstimate?: number;
   isWebSearch?: boolean;
+  isVoiceGen?: boolean;
 }
 
 export interface ChatSession {
